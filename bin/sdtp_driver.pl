@@ -35,15 +35,15 @@ BEGIN {
 		'R:s',\$opt_R,
 		'O:s',\$opt_O,
 		'd:s',\$opt_d,
-                'a',\$opt_a,
-                'b',\$opt_b,
-        	'sched_cnfg:s',\$sched_cnfg,
-            	'sched_id=s',\$sched_id,
-            	'sched_synp:s',\$sched_synp,
-            	'sched_c_dt:s',\$sched_c_dt,
-            	'sched_dir:s',\$sched_dir,
-            	'sched_sts_fl:s',\$sched_sts_fl,
-            	'sched_hs:s',\$sched_hs );
+        'a',\$opt_a,
+        'b',\$opt_b,
+     	'sched_cnfg:s',\$sched_cnfg,
+      	'sched_id=s',\$sched_id,
+       	'sched_synp:s',\$sched_synp,
+       	'sched_c_dt:s',\$sched_c_dt,
+       	'sched_dir:s',\$sched_dir,
+      	'sched_sts_fl:s',\$sched_sts_fl,
+      	'sched_hs:s',\$sched_hs );
 
 # Processing environment
 
@@ -333,7 +333,7 @@ print "Starting SDTP-3.2 processing.\n";
 module ("list");
 print "PYTHONPATH=$ENV{'PYTHONPATH'}\n";
 print "PATH=$ENV{'PATH'}\n";
-#module ("load $PYTHONPATH")
+
 my ($year, $month, $day) = $process_date =~ /(\d{4})(\d{2})(\d{2})/;
 print "$year : $month : $day\n";
 $cmd = "python ${SDTP_BASE}/bin/sdtp_download.py --stream $STREAM --maxfile $MAXFILE --cert $SDTP_CERT --key $SDTP_KEY --output-dir $SDTP_OUTPUT_BASE";
@@ -341,21 +341,12 @@ $cmd = "python ${SDTP_BASE}/bin/sdtp_download.py --stream $STREAM --maxfile $MAX
 print "$cmd\n";
 $rc=system("$cmd");
 print "RETURN CODE=$rc\n";
-#if ($rc != 0 && $rc != 11) {
- if ($rc != 0 ) {
+
+if ($rc != 0 ) {
     err_log (4, "sdtp_driver.pl", "$err_time","$prep_ID","-1",
 	     {'err_desc' => "Error running sdtp_driver.py.  Check listing."});
     recd_state( $fl_name, FAILED, $tab_argv, $sched_dir, $sched_sts_fl );
     die "error running sdtp_driver.py";
-}
-
-$rc=system("$cmd");
-
-if ($rc != 0) {
-    err_log (4, "sdtp_driver.pl", "$err_time","$prep_ID","-1",
-	     {'err_desc' => "Error running sdtp_l3b.py.  Check listing."});
-    recd_state( $fl_name, FAILED, $tab_argv, $sched_dir, $sched_sts_fl );
-    die "error running sdtp_l3b.py";
 }
 
 ########################
