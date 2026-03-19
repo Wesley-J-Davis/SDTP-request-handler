@@ -35,15 +35,15 @@ BEGIN {
 		'R:s',\$opt_R,
 		'O:s',\$opt_O,
 		'd:s',\$opt_d,
-        'a',\$opt_a,
-        'b',\$opt_b,
+      'a',\$opt_a,
+      'b',\$opt_b,
      	'sched_cnfg:s',\$sched_cnfg,
-      	'sched_id=s',\$sched_id,
-       	'sched_synp:s',\$sched_synp,
-       	'sched_c_dt:s',\$sched_c_dt,
-       	'sched_dir:s',\$sched_dir,
-      	'sched_sts_fl:s',\$sched_sts_fl,
-      	'sched_hs:s',\$sched_hs );
+      'sched_id=s',\$sched_id,
+      'sched_synp:s',\$sched_synp,
+      'sched_c_dt:s',\$sched_c_dt,
+      'sched_dir:s',\$sched_dir,
+      'sched_sts_fl:s',\$sched_sts_fl,
+      'sched_hs:s',\$sched_hs );
 
 # Processing environment
 
@@ -327,8 +327,7 @@ print "source g5_modules. ${GEOSDAS_PATH}/g5_modules_perl_wrapper\n";
 # Start the processing #
 #**********************#
 
-print "Starting SDTP-3.2 processing.\n";
-
+print "Starting SDTP download utility.\n";
 
 module ("list");
 print "PYTHONPATH=$ENV{'PYTHONPATH'}\n";
@@ -365,6 +364,6 @@ if ( $opt_O ) {
      recd_state( $fl_name, "COMPLETE", $tab_argv, $sched_dir, $sched_sts_fl );
   }
 
-  print "\nFinished.  ";
+  print "\nFinished.\n";
 
 exit 0;
