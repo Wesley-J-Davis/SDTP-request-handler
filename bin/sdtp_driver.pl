@@ -1,4 +1,3 @@
-discover13 davis-nokeep/SDTP-request-handler> cat stdp_driver.pl 
 #!/usr/bin/perl
 #
 # PROGRAM: sdtp_driver.pl is the operational driver for the SDTP-2
@@ -316,6 +315,12 @@ $ENV{'PATH'} = join( ':', "${SDTP_BASE}/bin/:/discover/nobackup/projects/gmao/sh
  do "/usr/share/modules/init/perl";
  module ("purge");
 
+print "source g5_modules. ${GEOSDAS_PATH}/g5_modules_perl_wrapper\n";
+{
+    local @ARGV = ("${GEOSDAS_PATH}");
+    do "g5_modules_perl_wrapper";
+}
+
 # If a g5_modules exists in the bin directory, source it.
 
 #**********************#
@@ -328,7 +333,7 @@ print "Starting SDTP-3.2 processing.\n";
 module ("list");
 print "PYTHONPATH=$ENV{'PYTHONPATH'}\n";
 print "PATH=$ENV{'PATH'}\n";
-
+#module ("load $PYTHONPATH")
 my ($year, $month, $day) = $process_date =~ /(\d{4})(\d{2})(\d{2})/;
 print "$year : $month : $day\n";
 $cmd = "python ${SDTP_BASE}/bin/sdtp_download.py --stream $STREAM --maxfile $MAXFILE --cert $SDTP_CERT --key $SDTP_KEY --output-dir $SDTP_OUTPUT_BASE";
