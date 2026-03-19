@@ -372,28 +372,20 @@ foreach my $file (@files) {
         my $dest_file   = "$output_dir/$file";
 
         # Move the file
-        $rc = system("mv $source_file $dest_file")
+        $rc = system("mv $source_file $dest_file");
         if ($rc != 0) {
              err_log (4, "sdtp_driver.pl", "$err_time","$prep_ID","-1",
                  {'err_desc' => "Error running sdtp_driver.py.  Check listing."});
              recd_state( $fl_name, FAILED, $tab_argv, $sched_dir, $sched_sts_fl );
              die "error running sdtp_driver.py";
-        } 
-        else {
+        } else {
             print "Moved: $file -> $output_dir/\n";
         }
-    } 
-    else {
+    } else {
         warn "Skipping $file: Does not match the standard .AYYYYDDD. pattern.\n";
 
     }
 }
-
-
-
-
-
-
 
 ########################
 # Rename output listings
