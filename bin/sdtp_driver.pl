@@ -308,7 +308,7 @@ $ENV{'SDTP'} = $SDTP_BASE;
 
 $ENV{'PYTHONPATH'} = "${SDTP_PYTHON_PATH}";
 
-$ENV{'PATH'} = join( ':', "${SDTP_BASE}/bin/:/discover/nobackup/projects/gmao/share/dasilva/bin/", $ENV{'PATH'} );
+$ENV{'PATH'} = join( ':', "${SDTP_BASE}/bin/:/discover/nobackup/projects/gmao/share/dasilva/bin/:$DATA_STAGE", $ENV{'PATH'} );
  do "/usr/share/modules/init/perl";
  module ("purge");
 
@@ -363,9 +363,7 @@ foreach my $file (@files) {
         my $output_dir = "$output_base/$year/$doy";
 
         # Create the directory structure if it doesn't exist
-        if (! -d $output_dir) {
-            make_path($output_dir) or die "Failed to create path $output_dir: $!";
-        }
+        system("mkdir -p $output_dir") ;
 
         # Construct full paths
         my $source_file = "$input_dir/$file";
@@ -377,7 +375,7 @@ foreach my $file (@files) {
              err_log (4, "sdtp_driver.pl", "$err_time","$prep_ID","-1",
                  {'err_desc' => "Error running sdtp_driver.py.  Check listing."});
              recd_state( $fl_name, FAILED, $tab_argv, $sched_dir, $sched_sts_fl );
-             die "error running sdtp_driver.py";
+             die "error moving $file to $output_dir";
         } else {
             print "Moved: $file -> $output_dir/\n";
         }
