@@ -303,15 +303,12 @@ $ENV{'SDTP'} = $SDTP_BASE;
 ( $SDTP_OUTPUT_BASE = extract_config( "OUTPUT_DIR", $PREP_CONFIG_FILE, "NONE" ) ) ne "NONE"
    or die "(sdtp_driver.pl) ERROR - can not set SDTP_OUTPUT_BASE configuration value\n";
 
-$SDTP_OUTPUT_BASE = token_resolve("${SDTP_OUTPUT_BASE}", $process_date);
+( $DATA_STAGE = extract_config( "DATA_STAGE", $PREP_CONFIG_FILE, "NONE" ) ) ne "NONE"
+   or print "(sdtp_driver.pl) WARNING - can not set STREAM configuration value\n";
 
-# Make directories, if needed.
-# identify output dirs and clean them prior to running
-
-# Set environment paths. For now, this is hard-wired.
 $ENV{'PYTHONPATH'} = "${SDTP_PYTHON_PATH}";
 
-$ENV{'PATH'} = join( ':', "${SDTP_BASE}/bin/:/discover/nobackup/projects/gmao/share/dasilva/bin/", $ENV{'PATH'} );
+$ENV{'PATH'} = join( ':', "${SDTP_BASE}/bin/:/discover/nobackup/projects/gmao/share/dasilva/bin/:$DATA_STAGE", $ENV{'PATH'} );
  do "/usr/share/modules/init/perl";
  module ("purge");
 
@@ -346,6 +343,46 @@ if ($rc != 0 ) {
 	     {'err_desc' => "Error running sdtp_driver.py.  Check listing."});
     recd_state( $fl_name, FAILED, $tab_argv, $sched_dir, $sched_sts_fl );
     die "error running sdtp_driver.py";
+}
+
+my $input_dir   = $SDTP_OUTPUT_BASE;
+my $output_base = $DATA_STAGE;
+
+opendir(my $dh, $input_dir) or die "Cannot open directory $input_dir: $!";
+my @files = grep { -f "$input_dir/$_" } readdir($dh);
+closedir($dh);
+
+foreach my $file (@files) {
+    # Match the pattern .A + 4 digit year + 3 digit DOY + .
+    # Example: MCD43C2N.A2026068.061... -> $1 = 2026, $2 = 068
+    if ($file =~ /\.A(\d{4})(\d{3})\./) {
+        my $year = $1;
+        my $doy  = $2;
+
+        # Construct the output directory path (year / doy)
+        my $output_dir = "$output_base/$year/$doy";
+
+        # Create the directory structure if it doesn't exist
+        system("mkdir -p $output_dir") ;
+
+        # Construct full paths
+        my $source_file = "$input_dir/$file";
+        my $dest_file   = "$output_dir/$file";
+
+        # Move the file
+        $rc = system("mv $source_file $dest_file");
+        if ($rc != 0) {
+             err_log (4, "sdtp_driver.pl", "$err_time","$prep_ID","-1",
+                 {'err_desc' => "Error running sdtp_driver.py.  Check listing."});
+             recd_state( $fl_name, FAILED, $tab_argv, $sched_dir, $sched_sts_fl );
+             die "error moving $file to $output_dir";
+        } else {
+            print "Moved: $file -> $output_dir/\n";
+        }
+    } else {
+        warn "Skipping $file: Does not match the standard .AYYYYDDD. pattern.\n";
+
+    }
 }
 
 ########################
