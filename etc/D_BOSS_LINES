@@ -1,0 +1,6 @@
+./job_info:GET-BRDF-03, sdtp_driver.pl, /home/dao_ops/GEOSadas-5_43_0/GEOSadas/install/bin_ops, discover36, dao_ops@, 00:10, /home/dao_ops/D_BOSS/local_stat
+./job_rquired:FLK, GET-BRDF-03, 00:00, FLK, GET-BRDF-03, 00:00, T, 0 
+./job_schdul:FLK, GET-BRDF-03, 00:00, 15:00, 00:00, 0, 1, 00:20, 1, -O /discover/nobackup/dao_ops/intermediate/D-BOSS/listings/GET-BRDF-03 -E /home/dao_ops/operations/GEOS_Prep_Config/Prep_Config.GET-BRDF-03 -t 00 flk
+
+FLK, GET-BRDF-03, 00:00, 2025-04-01, QUEUED, 2025-04-02-15:00, task sdtp_driver.pl
+FLK, GET-BRDF-03, 00:00, 2025-04-01, COMPLETE, 2025-04-02-15:01, task get_brdf

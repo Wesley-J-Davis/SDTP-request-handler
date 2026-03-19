@@ -1,0 +1,15 @@
+#BRDF  processing (SFTP) (LANCE)
+#    python sdtp_download.py \
+#        --stream MODAPS_AQUA_NRT \
+#        --maxfile 8 \
+#        --cert /path/to/cert.pem \
+#        --key /path/to/private.key \
+#        --output-dir /path/to/output
+
+SDTP_BASE = /home/dao_ops/operations/GIT-OPS/SDTP-request-handler
+STREAM = MODAPS_AQUA_NRT
+MAXFILE = 8
+CERT = /home/dao_ops/operations/bin/tokens/SDTP/SDTP_CERT_GMAO_OPS
+KEY = /home/dao_ops/operations/bin/tokens/SDTP/SDTP-KEY-GMAO-OPS.key
+OUTPUT_DIR = /discover/nobackup/dao_ops/TEST/davis-nokeep/%y4/%j3/
+PYTHON = /usr/local/other/GEOSpyD/24.3.0-0/2024-08-29/envs/py3.11/bin/python

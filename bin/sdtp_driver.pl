@@ -1,11 +1,11 @@
 discover13 davis-nokeep/SDTP-request-handler> cat stdp_driver.pl 
 #!/usr/bin/perl
 #
-# PROGRAM: qfed_driver.pl is the operational driver for the QFED-2
+# PROGRAM: sdtp_driver.pl is the operational driver for the SDTP-2
 # processing.
 # 
 # 25Aug10 R. Lucchesi - initial implementation.
-# 23Jan16 W. Davis    - adapted for qfed3 implementation
+# 23Jan16 W. Davis    - adapted for sdtp implementation
 # The setting of the options and the module lookup paths will
 # be done first using the BEGIN subroutine.  This section of the
 # program executes before the rest of the program is even compiled.
@@ -76,14 +76,14 @@ BEGIN {
       $RUN_CONFIG_FILE = "DEFAULT";
    }
 
-#  If qfed_driver.pl is initiated by the scheduler, construct table
+#  If sdtp_driver.pl is initiated by the scheduler, construct table
 # info. for "task_state" table of scheduler
 
    if ( defined( $sched_id ) )
    {
       $tab_status = 1;
       $tab_argv = "$sched_cnfg, $sched_id, $sched_synp, $sched_c_dt";
-      $fl_name = "qfed3";
+      $fl_name = "sdtp";
    }
 
 # ID for the preprocessing run.
@@ -95,8 +95,8 @@ $prep_ID = flk;
    if ( $opt_O ) { 
       system ("mkdir -p $opt_O");
       if ( -w "$opt_O" ) {
-        $listing_file    = "$opt_O/qfed3_${prep_ID}.$$.listing";
-        $listing_file_gz    = "$opt_O/qfed3_${prep_ID}.$$.listing_gz";
+        $listing_file    = "$opt_O/sdtp_${prep_ID}.$$.listing";
+        $listing_file_gz    = "$opt_O/sdtp_${prep_ID}.$$.listing_gz";
         print "Standard output redirecting to $listing_file\n";
         open (STDOUT, ">$listing_file");
         open (STDERR, ">&" . STDOUT);
@@ -112,7 +112,7 @@ $prep_ID = flk;
        print STDERR <<'ENDOFHELP';
 Usage:
 
-   qfed_driver.pl [-E Prep_Config] [-P GEOSDAS_Path] [-R Run_Config] [ -O output_location ] [ -d process_date ] [ -t synoptic_time ]
+   sdtp_driver.pl [-E Prep_Config] [-P GEOSDAS_Path] [-R Run_Config] [ -O output_location ] [ -d process_date ] [ -t synoptic_time ]
 
    Normal options and arguments:
 
@@ -123,35 +123,14 @@ Usage:
    -E Prep_Config
          The full path to the preprocessing configuration file.  This file contains
          parameters needed by the preprocessing control programs. If not given, a
-         file named $HOME/$prep_ID/Prep_Config is used.  qfed_driver.pl exits with an
+         file named $HOME/$prep_ID/Prep_Config is used.  sdtp_driver.pl exits with an
          error if neither of these files exist.
 
          The parameters set from this file are
 
-         QFED_BASE           
-            This is the base installation directory of the QFED-3 software.
+         SDTP_BASE           
+            This is the base installation directory of the SDTP-3 software.
 
-         QFED_WORK
-            This is a temporary holding directory for shuttling products with a "look-ahead"
-            in and out of the live QFED_L3b directory, which is where this stuff will be
-            read by the DAS.
- 
-         QFED_PERSIST
-            This is the number of days to persist the current data.
-  
-         QFED_ARCHIVE_LOC
-            Base directory for archiving.  Data will be stored at:
-            QFED_ARCHIVE_LOC/ops/flk/qfed/
-
-         QFED_STAGE
-            Alternate staging location for this data.  If this parameter is present in the
-            Prep_Config file, the QFED data will be copied here.
-	 
-	 QFED_CONFIG
-	    The .yaml configuration file tailored for for combinations of near-real-time/science-quality/0.1deg/0.25deg
-
-         QFED_NCKS
-            Path to ncks
 
    -d process_date
          Date in YYYYMMDD format to process.  If not given, then today's date (in
@@ -169,14 +148,14 @@ Usage:
 
    -R Run_Config
          Name of file (with path name, if necessary) to read to obtain the 
-         run-time (execution) configuration parameters.  qfed_driver.pl reads this
+         run-time (execution) configuration parameters.  sdtp_driver.pl reads this
          file to obtain configuration information at run time.  
 
-         If given, qfed_driver.pl uses this file.  Otherwise, qfed_driver.pl looks for a 
+         If given, sdtp_driver.pl uses this file.  Otherwise, sdtp_driver.pl looks for a 
          file named "Run_Config" in the user's home directory, then the 
          $GEOSDAS_PATH/bin directory.  $GEOSDAS_PATH is given by the -P option if
          set, or it is taken to be the parent directory of the directory in which this
-         script resides.  It is an error if qfed_driver.pl does not find this file, 
+         script resides.  It is an error if sdtp_driver.pl does not find this file, 
          but in the GEOS DAS production environment, a default Run_Config file is always 
          present in the bin directory.
 
@@ -224,6 +203,7 @@ ENDOFHELP
 # Any reason to exit found during the BEGIN block?
 
 if ( $die_away == 1 ) {
+   print "(sdtp_driver.pl) FAILED due to die_away condition"; 
    exit 1;
 }
 
@@ -269,8 +249,8 @@ $exit_stat = 0;
 
 # Write start message to Event Log
 
-err_log (0, "qfed3_driver.pl", "$prep_ID","$env","-1",
-        {'err_desc' => "$prep_ID qfed_driver.pl job has started - Standard output redirecting to $listing_file"});
+err_log (0, "sdtp_driver.pl", "$prep_ID","$env","-1",
+        {'err_desc' => "$prep_ID sdtp_driver.pl job has started - Standard output redirecting to $listing_file"});
 
 # Use Prep_Config file under the preprocessing run's directory in the user's home directory
 # as the default.
@@ -292,37 +272,37 @@ if ( "$PREP_CONFIG_FILE" eq "DEFAULT" ) {
 
 # Does the Prep_Config file exist?  If not, die.
 if ( ! -e "$PREP_CONFIG_FILE" ) {
-    err_log (4, "qfed3_driver.pl", "$err_time","$prep_ID","-1",
+    err_log (4, "sdtp_driver.pl", "$err_time","$prep_ID","-1",
 	     {'err_desc' => "error $PREP_CONFIG_FILE not found."});
     die "error $PREP_CONFIG_FILE not found.";
 }
 
 # Read from Prep_Config environment settings needed by SDTP request handling..
 
-( $SDTP_BASE = extract_config( "QFED_BASE", $PREP_CONFIG_FILE, "NONE" ) ) ne "NONE"
-   or die "(qfed3_driver.pl) ERROR - can not set QFED_BASE configuration value\n";
-$ENV{'QFED'} = $QFED_BASE;
+( $SDTP_BASE = extract_config( "SDTP_BASE", $PREP_CONFIG_FILE, "NONE" ) ) ne "NONE"
+   or die "(sdtp_driver.pl) ERROR - can not set SDTP_BASE configuration value\n";
+$ENV{'SDTP'} = $SDTP_BASE;
 
-( $STDP_PYTHON_PATH = extract_config( "QFED_PYTHON_PATH", $PREP_CONFIG_FILE, "NONE" ) ) ne "NONE"
-   or die "(qfed3_driver.pl) WARNING - can not set QFED_PYTHON_PATH configuration value\n";
+( $SDTP_PYTHON_PATH = extract_config( "PYTHON", $PREP_CONFIG_FILE, "NONE" ) ) ne "NONE"
+   or die "(sdtp_driver.pl) WARNING - can not set SDTP_PYTHON_PATH configuration value\n";
 
-( $STDP_CERT = extract_config( "QFED_PYTHON_PATH", $PREP_CONFIG_FILE, "NONE" ) ) ne "NONE"
-   or die "(qfed3_driver.pl) WARNING - can not set QFED_PYTHON_PATH configuration value\n";
+( $SDTP_CERT = extract_config( "CERT", $PREP_CONFIG_FILE, "NONE" ) ) ne "NONE"
+   or die "(sdtp_driver.pl) WARNING - can not set SDTP_CERT configuration value\n";
 
-( $STDP_KEY = extract_config( "QFED_PYTHON_PATH", $PREP_CONFIG_FILE, "NONE" ) ) ne "NONE"
-   or die "(qfed3_driver.pl) WARNING - can not set QFED_PYTHON_PATH configuration value\n";
+( $SDTP_KEY = extract_config( "KEY", $PREP_CONFIG_FILE, "NONE" ) ) ne "NONE"
+   or die "(sdtp_driver.pl) WARNING - can not set SDTP_KEY configuration value\n";
 
 # Get Query Data.
 
-( $MAXFILE = extract_config( "QFED_CONFIG", $PREP_CONFIG_FILE, "NONE" ) ) ne "NONE"
-   or print "(qfed3_driver.pl) WARNING - can not set QFED_PYTHON_PATH configuration value\n";
-( $STREAM = extract_config( "QFED_CONFIG", $PREP_CONFIG_FILE, "NONE" ) ) ne "NONE"
-   or print "(qfed3_driver.pl) WARNING - can not set QFED_PYTHON_PATH configuration value\n";
+( $MAXFILE = extract_config( "MAXFILE", $PREP_CONFIG_FILE, "NONE" ) ) ne "NONE"
+   or print "(sdtp_driver.pl) WARNING - can not set MAXFILE configuration value\n";
+( $STREAM = extract_config( "STREAM", $PREP_CONFIG_FILE, "NONE" ) ) ne "NONE"
+   or print "(sdtp_driver.pl) WARNING - can not set STREAM configuration value\n";
 
 # Get output directory
 
-( $SDTP_OUTPUT_BASE = extract_config( "SDTP_OUTPUT_BASE", $PREP_CONFIG_FILE, "NONE" ) ) ne "NONE"
-   or die "(sdtp_driver.pl) ERROR - can not set QFED_NCKS configuration value\n";
+( $SDTP_OUTPUT_BASE = extract_config( "OUTPUT_DIR", $PREP_CONFIG_FILE, "NONE" ) ) ne "NONE"
+   or die "(sdtp_driver.pl) ERROR - can not set SDTP_OUTPUT_BASE configuration value\n";
 
 $SDTP_OUTPUT_BASE = token_resolve("${SDTP_OUTPUT_BASE}", $process_date);
 
@@ -330,15 +310,9 @@ $SDTP_OUTPUT_BASE = token_resolve("${SDTP_OUTPUT_BASE}", $process_date);
 # identify output dirs and clean them prior to running
 
 # Set environment paths. For now, this is hard-wired.
+$ENV{'PYTHONPATH'} = "${SDTP_PYTHON_PATH}";
 
- if ( "${SDTP_PYTHON_PATH}" eq "NONE" ) {
-     $ENV{'PYTHONPATH'} = "${QFED_BASE}/lib/Python/";
- }
- else {
-     $ENV{'PYTHONPATH'} = "${QFED_PYTHON_PATH}";
- }
-
-$ENV{'PATH'} = join( ':', "${QFED_BASE}/bin/:/discover/nobackup/projects/gmao/share/dasilva/bin/", $ENV{'PATH'} );
+$ENV{'PATH'} = join( ':', "${SDTP_BASE}/bin/:/discover/nobackup/projects/gmao/share/dasilva/bin/", $ENV{'PATH'} );
  do "/usr/share/modules/init/perl";
  module ("purge");
 
@@ -348,8 +322,8 @@ $ENV{'PATH'} = join( ':', "${QFED_BASE}/bin/:/discover/nobackup/projects/gmao/sh
 # Start the processing #
 #**********************#
 
-print "Starting QFED-3.2 processing.\n";
-print "Run level-3a processing for $process_date\n";
+print "Starting SDTP-3.2 processing.\n";
+
 
 module ("list");
 print "PYTHONPATH=$ENV{'PYTHONPATH'}\n";
@@ -357,7 +331,7 @@ print "PATH=$ENV{'PATH'}\n";
 
 my ($year, $month, $day) = $process_date =~ /(\d{4})(\d{2})(\d{2})/;
 print "$year : $month : $day\n";
-$cmd = "python sdtp_download.py --stream $STREAM --maxfile $MAXFILE --cert $SDTP_CERT --key $SDTP_KEY --output-dir $SDTP_OUTPUT_BASE";
+$cmd = "python ${SDTP_BASE}/bin/sdtp_download.py --stream $STREAM --maxfile $MAXFILE --cert $SDTP_CERT --key $SDTP_KEY --output-dir $SDTP_OUTPUT_BASE";
 
 print "$cmd\n";
 $rc=system("$cmd");
@@ -373,10 +347,10 @@ print "RETURN CODE=$rc\n";
 $rc=system("$cmd");
 
 if ($rc != 0) {
-    err_log (4, "qfed3_driver.pl", "$err_time","$prep_ID","-1",
-	     {'err_desc' => "Error running qfed_l3b.py.  Check listing."});
+    err_log (4, "sdtp_driver.pl", "$err_time","$prep_ID","-1",
+	     {'err_desc' => "Error running sdtp_l3b.py.  Check listing."});
     recd_state( $fl_name, FAILED, $tab_argv, $sched_dir, $sched_sts_fl );
-    die "error running qfed_l3b.py";
+    die "error running sdtp_l3b.py";
 }
 
 ########################
@@ -384,10 +358,10 @@ if ($rc != 0) {
 ########################
 
 if ( $opt_O ) {
-    system ("mv $listing_file $opt_O/qfed3_${prep_ID}.${err_time}.listing");
+    system ("mv $listing_file $opt_O/sdtp_${prep_ID}.${err_time}.listing");
 }
 
-#  If qfed_driver.pl is initiated by the scheduler and the output file size
+#  If sdtp_driver.pl is initiated by the scheduler and the output file size
 # is not zero, write COMPLETE to a task status file.
 
   if ( defined( $sched_id ) && $tab_status != 0 )
