@@ -1,4 +1,3 @@
-discover13 davis-nokeep/SDTP-request-handler> cat stdp_driver.pl 
 #!/usr/bin/perl
 #
 # PROGRAM: sdtp_driver.pl is the operational driver for the SDTP-2
@@ -36,15 +35,15 @@ BEGIN {
 		'R:s',\$opt_R,
 		'O:s',\$opt_O,
 		'd:s',\$opt_d,
-                'a',\$opt_a,
-                'b',\$opt_b,
-        	'sched_cnfg:s',\$sched_cnfg,
-            	'sched_id=s',\$sched_id,
-            	'sched_synp:s',\$sched_synp,
-            	'sched_c_dt:s',\$sched_c_dt,
-            	'sched_dir:s',\$sched_dir,
-            	'sched_sts_fl:s',\$sched_sts_fl,
-            	'sched_hs:s',\$sched_hs );
+      'a',\$opt_a,
+      'b',\$opt_b,
+     	'sched_cnfg:s',\$sched_cnfg,
+      'sched_id=s',\$sched_id,
+      'sched_synp:s',\$sched_synp,
+      'sched_c_dt:s',\$sched_c_dt,
+      'sched_dir:s',\$sched_dir,
+      'sched_sts_fl:s',\$sched_sts_fl,
+      'sched_hs:s',\$sched_hs );
 
 # Processing environment
 
@@ -316,14 +315,19 @@ $ENV{'PATH'} = join( ':', "${SDTP_BASE}/bin/:/discover/nobackup/projects/gmao/sh
  do "/usr/share/modules/init/perl";
  module ("purge");
 
+print "source g5_modules. ${GEOSDAS_PATH}/g5_modules_perl_wrapper\n";
+{
+    local @ARGV = ("${GEOSDAS_PATH}");
+    do "g5_modules_perl_wrapper";
+}
+
 # If a g5_modules exists in the bin directory, source it.
 
 #**********************#
 # Start the processing #
 #**********************#
 
-print "Starting SDTP-3.2 processing.\n";
-
+print "Starting SDTP download utility.\n";
 
 module ("list");
 print "PYTHONPATH=$ENV{'PYTHONPATH'}\n";
@@ -336,21 +340,12 @@ $cmd = "python ${SDTP_BASE}/bin/sdtp_download.py --stream $STREAM --maxfile $MAX
 print "$cmd\n";
 $rc=system("$cmd");
 print "RETURN CODE=$rc\n";
-#if ($rc != 0 && $rc != 11) {
- if ($rc != 0 ) {
+
+if ($rc != 0 ) {
     err_log (4, "sdtp_driver.pl", "$err_time","$prep_ID","-1",
 	     {'err_desc' => "Error running sdtp_driver.py.  Check listing."});
     recd_state( $fl_name, FAILED, $tab_argv, $sched_dir, $sched_sts_fl );
     die "error running sdtp_driver.py";
-}
-
-$rc=system("$cmd");
-
-if ($rc != 0) {
-    err_log (4, "sdtp_driver.pl", "$err_time","$prep_ID","-1",
-	     {'err_desc' => "Error running sdtp_l3b.py.  Check listing."});
-    recd_state( $fl_name, FAILED, $tab_argv, $sched_dir, $sched_sts_fl );
-    die "error running sdtp_l3b.py";
 }
 
 ########################
@@ -369,6 +364,6 @@ if ( $opt_O ) {
      recd_state( $fl_name, "COMPLETE", $tab_argv, $sched_dir, $sched_sts_fl );
   }
 
-  print "\nFinished.  ";
+  print "\nFinished.\n";
 
 exit 0;
