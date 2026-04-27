@@ -14,3 +14,4 @@ KEY = /home/dao_ops/operations/bin/tokens/SDTP/SDTP-KEY-GMAO-OPS.key
 OUTPUT_DIR = /discover/nobackup/dao_ops/TEST/davis-nokeep/WORKING_DIR
 DATA_STAGE = /discover/nobackup/dao_ops/TEST/davis-nokeep/DATA_STAGE
 PYTHON = /usr/local/other/GEOSpyD/24.3.0-0/2024-08-29/envs/py3.11/bin/python
+TEST_MODE = True

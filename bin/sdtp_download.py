@@ -13,6 +13,7 @@ Usage:
         --cert /path/to/cert.pem \
         --key /path/to/private.key \
         --output-dir /path/to/output
+        [--test-mode]
 
 Workflow:
     1. Discover available files via GET /sdtp/v1/files
@@ -71,6 +72,12 @@ def parse_args():
         "--output-dir",
         required=True,
         help="Directory to save downloaded files to"
+    )
+    parser.add_argument(
+        "--test-mode",
+        action="store_true",
+        default=False,
+        help="Display available files without downloading (dry run)"
     )
     return parser.parse_args()
 
@@ -310,16 +317,24 @@ def run(args):
 
     Continuously pulls batches of files from the SDTP queue until
     the queue is empty.
+
+    In TEST MODE, files are listed but not
+    downloaded or acknowledged.
     """
-    ensure_output_dir(args.output_dir)
+    # In normal mode, ensure the output directory exists
+    if not args.test_mode:
+        ensure_output_dir(args.output_dir)
 
     # Build a persistent session with mutual TLS auth
     session        = requests.Session()
     session.cert   = (args.cert, args.key)
 
+    if args.test_mode:
+        log_info("*** TEST MODE ENABLED — files will be listed but NOT downloaded ***")
+
     log_info(f"Starting SDTP download — stream={args.stream}, maxfile={args.maxfile}")
     log_info(f"Output directory: {args.output_dir}")
-
+    total_files      = 0
     total_downloaded = 0
     batch_number     = 0
 
@@ -328,6 +343,7 @@ def run(args):
         log_info(f"--- Batch {batch_number}: Discovering files ---")
 
         files = discover_files(session, args.stream, args.maxfile)
+        print (files)
 
         # Empty or null files array signals queue is exhausted
         if not files:
@@ -336,11 +352,19 @@ def run(args):
 
         log_info(f"  Found {len(files)} file(s) in batch {batch_number}")
 
-        for file_meta in files:
-            process_file(session, file_meta, args.output_dir)
-            total_downloaded += 1
+        if args.test_mode:
+            # Display files only — no download or acknowledgement
+            display_files(files, batch_number)
+            total_files += len(files)
+        else:
+            for file_meta in files:
+                process_file(session, file_meta, args.output_dir)
+                total_downloaded += 1
 
-    log_info(f"Done. Total files downloaded this run: {total_downloaded}")
+    if args.test_mode:
+        log_info(f"Done. Total files available across all batches: {total_files}")
+    else:
+        log_info(f"Done. Total files downloaded this run: {total_downloaded}")
 
 
 # ---------------------------------------------------------------------------

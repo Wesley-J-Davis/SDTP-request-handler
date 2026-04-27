@@ -304,7 +304,10 @@ $ENV{'SDTP'} = $SDTP_BASE;
    or die "(sdtp_driver.pl) ERROR - can not set SDTP_OUTPUT_BASE configuration value\n";
 
 ( $DATA_STAGE = extract_config( "DATA_STAGE", $PREP_CONFIG_FILE, "NONE" ) ) ne "NONE"
-   or print "(sdtp_driver.pl) WARNING - can not set STREAM configuration value\n";
+   or print "(sdtp_driver.pl) WARNING - can not set DATA_STAGE configuration value\n";
+
+( $TEST_MODE = extract_config( "TEST_MODE", $PREP_CONFIG_FILE, "NONE" ) ) ne "NONE"
+   or print "(sdtp_driver.pl) INFO - TEST_MODE variable not set\n";
 
 $ENV{'PYTHONPATH'} = "${SDTP_PYTHON_PATH}";
 
@@ -332,7 +335,12 @@ print "PATH=$ENV{'PATH'}\n";
 
 my ($year, $month, $day) = $process_date =~ /(\d{4})(\d{2})(\d{2})/;
 print "$year : $month : $day\n";
-$cmd = "python ${SDTP_BASE}/bin/sdtp_download.py --stream $STREAM --maxfile $MAXFILE --cert $SDTP_CERT --key $SDTP_KEY --output-dir $SDTP_OUTPUT_BASE";
+if ( !defined $TEST_MODE  ) { 
+  $cmd = "python ${SDTP_BASE}/bin/sdtp_download.py --stream $STREAM --maxfile $MAXFILE --cert $SDTP_CERT --key $SDTP_KEY --output-dir $SDTP_OUTPUT_BASE";
+}
+else { 
+  $cmd = "python ${SDTP_BASE}/bin/sdtp_download.py --stream $STREAM --maxfile $MAXFILE --cert $SDTP_CERT --key $SDTP_KEY --output-dir $SDTP_OUTPUT_BASE --test-mode";
+}
 
 print "$cmd\n";
 $rc=system("$cmd");
