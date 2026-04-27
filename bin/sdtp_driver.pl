@@ -335,7 +335,7 @@ print "PATH=$ENV{'PATH'}\n";
 
 my ($year, $month, $day) = $process_date =~ /(\d{4})(\d{2})(\d{2})/;
 print "$year : $month : $day\n";
-if ( !defined $TEST_MODE  ) { 
+if ( !$TEST_MODE  ) { 
   $cmd = "python ${SDTP_BASE}/bin/sdtp_download.py --stream $STREAM --maxfile $MAXFILE --cert $SDTP_CERT --key $SDTP_KEY --output-dir $SDTP_OUTPUT_BASE";
 }
 else { 
