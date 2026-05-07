@@ -318,7 +318,7 @@ def run(args):
     Continuously pulls batches of files from the SDTP queue until
     the queue is empty.
 
-    In TEST MODE, files are listed but not
+    In DISPLAY MODE, files are listed but not
     downloaded or acknowledged.
     """
     # In normal mode, ensure the output directory exists
@@ -330,7 +330,7 @@ def run(args):
     session.cert   = (args.cert, args.key)
 
     if args.test_mode:
-        log_info("*** TEST MODE ENABLED — files will be listed but NOT downloaded ***")
+        log_info("*** DISPLAY MODE ENABLED — files will be listed but NOT downloaded ***")
 
     log_info(f"Starting SDTP download — stream={args.stream}, maxfile={args.maxfile}")
     log_info(f"Output directory: {args.output_dir}")
