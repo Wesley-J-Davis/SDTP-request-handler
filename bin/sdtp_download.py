@@ -338,12 +338,13 @@ def run(args):
     total_downloaded = 0
     batch_number     = 0
 
-    while True:
+    while batch_number < 10 :
         batch_number += 1
         log_info(f"--- Batch {batch_number}: Discovering files ---")
 
         files = discover_files(session, args.stream, args.maxfile)
         print (files)
+
 
         # Empty or null files array signals queue is exhausted
         if not files:
@@ -354,12 +355,20 @@ def run(args):
 
         if args.test_mode:
             # Display files only — no download or acknowledgement
-            display_files(files, batch_number)
             total_files += len(files)
         else:
             for file_meta in files:
                 process_file(session, file_meta, args.output_dir)
                 total_downloaded += 1
+
+        # If the batch returned fewer files than maxfile, the queue
+        # is exhausted — no need to request another batch
+        if len(files) < args.maxfile:
+            log_info(
+                f"  Batch {batch_number} returned {len(files)}/{args.maxfile} "
+                f"file(s) — queue exhausted, exiting."
+            )
+            break
 
     if args.test_mode:
         log_info(f"Done. Total files available across all batches: {total_files}")
